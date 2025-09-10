@@ -2,42 +2,25 @@ import React, {useState, useEffect} from 'react';
 import {View, StyleSheet, FlatList} from 'react-native';
 import {Text, Card, Chip} from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import {fetchMiniApps, checkMiniAppSupport} from '../services/miniAppManager';
+import {fetchMiniApps} from '../services/miniAppManager';
 
 const HomeScreen = ({navigation}) => {
   const [miniApps, setMiniApps] = useState([]);
 
   useEffect(() => {
-    // Mock mini-apps data for now - will be replaced with Turso DB in Step 2
-    const mockMiniApps = [
-      {
-        id: 'face-detector',
-        name: 'Face Detector',
-        description: 'Detect personalities from faces',
-        icon: 'face',
-        status: 'available',
-        route: 'FaceDetectorHome',
-        requiredNativeLibs: ['vision-camera', 'fast-tflite'],
-      },
-      {
-        id: 'coming-soon-1',
-        name: 'Photo Editor',
-        description: 'Advanced photo editing tools',
-        icon: 'photo',
-        status: 'coming-soon',
-        route: null,
-        requiredNativeLibs: [],
-      },
-      {
-        id: 'coming-soon-2',
-        name: 'Voice Notes',
-        description: 'Record and organize voice memos',
-        icon: 'mic',
-        status: 'coming-soon',
-        route: null,
-        requiredNativeLibs: [],
-      },
-    ];
-    setMiniApps(mockMiniApps);
+    const loadMiniApps = async () => {
+      try {
+        const apps = await fetchMiniApps();
+        setMiniApps(apps);
+      } catch (error) {
+        console.error('Error loading mini-apps:', error);
+        // Fallback to empty array if fetch fails
+        setMiniApps([]);
+      }
+    };
+
+    loadMiniApps();
   }, []);
 
   const handleMiniAppPress = (miniApp) => {
