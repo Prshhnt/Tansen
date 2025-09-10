@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Tansen</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey">YOUR_CODEPUSH_DEPLOYMENT_KEY_HERE</string>
+</resources>
