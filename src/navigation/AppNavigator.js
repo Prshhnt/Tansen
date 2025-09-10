@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {onAuthStateChanged} from '../services/auth';
 
 // Import screens
 import HomeScreen from '../screens/HomeScreen';
@@ -11,10 +12,27 @@ import EnrollmentScreen from '../mini-apps/face-detector/screens/EnrollmentScree
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged((authUser) => {
+      setUser(authUser);
+      setIsLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  if (isLoading) {
+    // You can replace this with a loading screen component
+    return null;
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Auth"
+        initialRouteName={user ? "Home" : "Auth"}
         screenOptions={{
           headerStyle: {
             backgroundColor: '#6750a4',
@@ -24,33 +42,40 @@ const AppNavigator = () => {
             fontWeight: 'bold',
           },
         }}>
-        <Stack.Screen
-          name="Auth"
-          component={AuthScreen}
-          options={{headerShown: false}}
-        />
-        <Stack.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            title: 'Tansen',
-            headerBackVisible: false,
-          }}
-        />
-        <Stack.Screen
-          name="FaceDetectorHome"
-          component={FaceDetectorHome}
-          options={{
-            title: 'Face Detector',
-          }}
-        />
-        <Stack.Screen
-          name="Enrollment"
-          component={EnrollmentScreen}
-          options={{
-            title: 'Enroll Faces',
-          }}
-        />
+        {user ? (
+          // Screens for authenticated users
+          <>
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{
+                title: 'Tansen',
+                headerBackVisible: false,
+              }}
+            />
+            <Stack.Screen
+              name="FaceDetectorHome"
+              component={FaceDetectorHome}
+              options={{
+                title: 'Face Detector',
+              }}
+            />
+            <Stack.Screen
+              name="Enrollment"
+              component={EnrollmentScreen}
+              options={{
+                title: 'Enroll Faces',
+              }}
+            />
+          </>
+        ) : (
+          // Screens for unauthenticated users
+          <Stack.Screen
+            name="Auth"
+            component={AuthScreen}
+            options={{headerShown: false}}
+          />
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );
